@@ -1,0 +1,33 @@
+require(lubridate)
+#Download and unzip the file
+url <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip"
+download.file(url, "power_consumption.zip")
+unzip("power_consumption.zip")
+
+#Read the file only from the beginning of1/2/2007 (66636 line), from the end 
+#of 2/2/2007. Then I assign correct column names (obtained in names).
+names <- read.table("household_power_consumption.txt",sep=';',na.strings='?', 
+                    nrow=1, as.is=T)
+set <-read.table("household_power_consumption.txt",header=TRUE,sep=';', 
+                 na.strings='?', skip=66636, nrow=2880, col.names=names)
+
+#Set correct classes for Date and Time values (in the third command i combine date
+#and time)
+set$Date <- dmy(set$Date)
+set$Time <- hms(set$Time)
+set$date.time <- set$Date + set$Time
+
+#Open png device
+png("plot3.png", width = 480, height = 480)
+
+#Plot the third graph
+#NOTE: dates on xlab are in Italian!!
+with(set, plot(date.time, Sub_metering_1, type="l", ylab="Energy sub metering",
+               xlab=""))
+with(set, lines(date.time, Sub_metering_2, col="red"))
+with(set, lines(date.time, Sub_metering_3, col="blue"))
+legend("topright",legend = c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"),
+       lty = c(1,1,1),col = c("black", "red", "blue"))
+
+#Turn off device
+dev.off()
